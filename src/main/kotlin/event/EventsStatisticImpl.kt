@@ -5,7 +5,7 @@ import java.time.Duration
 import java.time.Instant
 
 
-class EventStatisticImpl(private val clock: Clock): EventStatistic {
+class EventsStatisticImpl(private val clock: Clock): EventsStatistic {
     private val eventInstants: HashMap<String, MutableList<Instant>> = hashMapOf()
 
     override fun incEvent(name: String) {
@@ -40,6 +40,6 @@ class EventStatisticImpl(private val clock: Clock): EventStatistic {
     }
 
     override fun printStatistic() {
-        getAllEventStatistic().forEach() {entry -> println("${entry.key}: ${entry.value}")}
+        getAllEventStatistic().forEach {entry -> println("${entry.key}: ${entry.value}")}
     }
 }
