@@ -1,6 +1,8 @@
-import java.time.Clock
+package event
+
+import clock.Clock
+import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 
 class EventStatisticImpl(private val clock: Clock): EventStatistic {
@@ -13,7 +15,7 @@ class EventStatisticImpl(private val clock: Clock): EventStatistic {
     }
 
     private fun getEventStatistic(instants: List<Instant>, requestInstant: Instant): Double {
-        val startInstant = requestInstant.minus(1, ChronoUnit.HOURS)
+        val startInstant = requestInstant.minus(Duration.ofHours(1))
         var eventCount = 0
         for (instant in instants) {
             if (instant > startInstant && instant <= requestInstant) {
