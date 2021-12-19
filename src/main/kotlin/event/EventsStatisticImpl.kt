@@ -6,7 +6,7 @@ import java.time.Instant
 
 
 class EventsStatisticImpl(private val clock: Clock): EventsStatistic {
-    private val eventInstants: HashMap<String, MutableList<Instant>> = hashMapOf()
+    private var eventInstants: HashMap<String, MutableList<Instant>> = hashMapOf()
 
     override fun incEvent(name: String) {
         val instant = clock.instant()
@@ -14,32 +14,26 @@ class EventsStatisticImpl(private val clock: Clock): EventsStatistic {
         eventInstants[name]?.add(instant)
     }
 
-    private fun getEventStatistic(instants: List<Instant>, requestInstant: Instant): Double {
-        val startInstant = requestInstant.minus(Duration.ofHours(1))
-        var eventCount = 0
-        for (instant in instants) {
-            if (instant > startInstant && instant <= requestInstant) {
-                eventCount++
-            }
-        }
-
-        return eventCount / 60.0
-    }
-
     override fun getEventStatisticByName(name: String): Double {
-        val instant = clock.instant()
+        removeOldEvents()
         val eventInstantsByName = eventInstants.getOrDefault(name, emptyList())
 
-        return getEventStatistic(eventInstantsByName, instant)
+        return eventInstantsByName.size / 60.0
     }
 
     override fun getAllEventStatistic(): Map<String, Double> {
-        val instant = clock.instant()
+        removeOldEvents()
 
-        return eventInstants.mapValues { (_, instants) -> getEventStatistic(instants, instant) }
+        return eventInstants.mapValues { (_, instants) -> instants.size / 60.0 }
     }
 
     override fun printStatistic() {
         getAllEventStatistic().forEach {entry -> println("${entry.key}: ${entry.value}")}
+    }
+
+    private fun removeOldEvents() {
+        val requestInstant = clock.instant()
+        val startInstant = requestInstant.minus(Duration.ofHours(1))
+        eventInstants.forEach { (_, instants) -> instants.removeAll { instant -> instant <= startInstant } }
     }
 }
